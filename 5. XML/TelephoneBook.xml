@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyContacts>
+	<Contact TelephoneNumber="+375295541223">Иван</Contact>
+	<Contact TelephoneNumber="+375291112233">Мария</Contact>
+	<Contact TelephoneNumber="+375293334455">Петр</Contact>
+	<Contact TelephoneNumber="+375294445566">Анна</Contact>
+</MyContacts>
