@@ -18,46 +18,16 @@ namespace Ввод_вывод
         public Form1()
         {
             InitializeComponent();
-            textBox2.ReadOnly = true;
-            button2.Enabled = false;
-            button3.Enabled = false;
-            textBox2.ScrollBars = ScrollBars.Vertical;
+            fileContents.ReadOnly = true;
+            openFileButton.Enabled = false;
+            gzipFileButton.Enabled = false;
+            fileContents.ScrollBars = ScrollBars.Vertical;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private List<string> GetFilesInDirectory(DirectoryInfo dir, string searchText)
         {
-            string searchText = textBox1.Text.Trim();
+            var result = new List<string>(); 
 
-            if (string.IsNullOrEmpty(searchText))
-            {
-                MessageBox.Show("Введите значение для поиска");
-                return;
-            }
-
-            textBox2.Clear();
-            listBox1.Items.Clear();
-
-            var files = new List<string>();
-
-            foreach (var drive in DriveInfo.GetDrives().Where(d => d.IsReady))
-            {
-                if (drive.Name == "C:\\")
-                    continue;
-                SearchDirectory(drive.RootDirectory, searchText, files);
-            }
-
-            if (files.Count == 0) MessageBox.Show("Файлы не надйены");
-            else
-            {
-                foreach (var file in files)
-                {
-                    listBox1.Items.Add(file);
-                }
-            }
-        }
-
-        private void SearchDirectory(DirectoryInfo dir, string searchText, List<string> result)
-        {
             try
             {
                 foreach (var file in dir.GetFiles())
@@ -65,53 +35,88 @@ namespace Ввод_вывод
                     if (file.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                         result.Add(file.FullName);
                 }           
-
-                foreach (var subDir in dir.GetDirectories())
-                    SearchDirectory(subDir, searchText, result);
             }
             catch (Exception ex) {
                 MessageBox.Show($"Ошибка: { ex.Message}");
             }
+
+            return result;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private List<string> GetResultDirectories(DirectoryInfo dir, string searchText)
+        {
+            var results = new List<string>();
+
+            try
+            {
+                results.AddRange(GetFilesInDirectory(dir, searchText));
+
+                foreach (var subDir in dir.GetDirectories())
+                {
+                    results.AddRange(GetResultDirectories(subDir, searchText));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обходе папки: {ex.Message}");
+            }
+
+            return results;
+        }
+
+        private void findButton_Click(object sender, EventArgs e)
+        {
+            string searchText = fileName.Text.Trim();
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                MessageBox.Show("Введите значение для поиска");
+                return;
+            }
+
+            fileContents.Clear();
+            fileListBox.Items.Clear();
+
+            var files = new List<string>();
+
+            foreach (var drive in DriveInfo.GetDrives().Where(d => d.IsReady))
+            {
+                if (drive.Name == Constants.ExcludedDrive)
+                    continue;
+                files.AddRange(GetResultDirectories(drive.RootDirectory, searchText));
+            }
+
+            if (files.Count == 0) MessageBox.Show("Файлы не найдены");
+            else
+            {
+                foreach (var file in files)
+                {
+                    fileListBox.Items.Add(file);
+                }
+            }
+        }
+
+        private void openFileButton_Click(object sender, EventArgs e)
         {
             if (!File.Exists(selectedFile)) return;
 
             try
             {
-                using(FileStream fs = new FileStream(selectedFile, FileMode.Open, FileAccess.Read))
+                using (FileStream fs = new FileStream(selectedFile, FileMode.Open, FileAccess.Read))
+                using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
                 {
-                    using(StreamReader sr = new StreamReader(fs, Encoding.UTF8))
-                    {
-                        textBox2.Text = sr.ReadToEnd();
-                    }
+                    fileContents.Text = sr.ReadToEnd();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex}");
             }
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void gzipFileButton_Click(object sender, EventArgs e)
         {
-            if (listBox1.SelectedItem != null)
-            {
-                selectedFile = listBox1.SelectedItem.ToString();
-
-                button2.Enabled = true;
-                button3.Enabled = true;
-            }
-            else
-            {
-                MessageBox.Show("Выберите файл");
-            }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if(!File.Exists(selectedFile)) return;
+            if (!File.Exists(selectedFile)) return;
 
             try
             {
@@ -119,16 +124,31 @@ namespace Ввод_вывод
 
                 using (FileStream fs = new FileStream(selectedFile, FileMode.Open, FileAccess.Read))
                 using (FileStream fsc = new FileStream(compressed, FileMode.Create))
-                using(GZipStream zs = new GZipStream(fsc, CompressionLevel.Optimal))
+                using (GZipStream zs = new GZipStream(fsc, CompressionLevel.Optimal))
                 {
                     fs.CopyTo(zs);
                 }
 
                 MessageBox.Show("Архив успешно создан");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex}");
+            }
+        }
+
+        private void fileListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (fileListBox.SelectedItem != null)
+            {
+                selectedFile = fileListBox.SelectedItem.ToString();
+
+                openFileButton.Enabled = true;
+                gzipFileButton.Enabled = true;
+            }
+            else
+            {
+                MessageBox.Show("Выберите файл");
             }
         }
     }

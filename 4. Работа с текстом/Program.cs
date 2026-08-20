@@ -2,11 +2,72 @@
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Dynamic;
+using System.Collections.Generic;
 
 namespace Работа_с_текстом
 {
     internal class Program
     {
+        public static string loginRegex = @"^[a-zA-Z]+$";
+        public static string passwordRegex = @"^[0-9!@#$%^&*()]+$";
+
+        static DateTime ParseDate(string[] lines)
+        {
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("Дата:"))
+                {
+                    string dateStr = line.Substring("Дата:".Length).Trim();
+                    return DateTime.Parse(dateStr);
+                }
+            }
+            return DateTime.Now; 
+        }
+
+        static (string[] products, double[] prices) ParseProducts(string[] lines)
+        {
+            var productsList = new List<string>();
+            var pricesList = new List<double>();
+
+            foreach (var line in lines)
+            {
+                if (line.Contains("-") && line.Contains("руб.") && !line.Contains("Итого"))
+                {
+                    string[] parts = line.Split('-');
+                    if (parts.Length == 2)
+                    {
+                        string product = parts[0].Trim();
+                        string priceStr = parts[1].Trim().Replace("руб.", "").Trim();
+
+                        if (double.TryParse(priceStr, out double price))
+                        {
+                            productsList.Add(product);
+                            pricesList.Add(price);
+                        }
+                    }
+                }
+            }
+
+            return (productsList.ToArray(), pricesList.ToArray());
+        }
+
+        static double ParseTotal(string[] lines)
+        {
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("Итого:"))
+                {
+                    string totalStr = line.Substring("Итого:".Length).Trim().Replace("руб.", "").Trim();
+                    if (double.TryParse(totalStr, out double total))
+                    {
+                        return total;
+                    }
+                }
+            }
+            return 0; 
+        }
+
         static void Main(string[] args)
         {
             //ЗАДАНИЕ 1
@@ -39,20 +100,11 @@ namespace Работа_с_текстом
 
             string[] lines = File.ReadAllLines(filePath);
 
-            DateTime date = DateTime.Parse(lines[0].Substring(6));
+            var date = ParseDate(lines);
 
-            int productCount = lines.Length - 3; 
-            string[] productsFromFile = new string[productCount];
-            double[] pricesFromFile = new double[productCount];
+            var (productsFromFile, pricesFromFile) = ParseProducts(lines);
 
-            for (int i = 0; i < productCount; i++)
-            {
-                string[] parts = lines[i + 2].Split('-'); 
-                productsFromFile[i] = parts[0].Trim();
-                pricesFromFile[i] = double.Parse(parts[1].Trim().Replace(" руб.", ""));
-            }
-
-            double totalFromFile = double.Parse(lines[lines.Length - 1].Substring(7).Replace(" руб.", ""));
+            double totalFromFile = ParseTotal(lines);
 
             Console.WriteLine("ТЕКУЩАЯ ЛОКАЛЬ (ru-RU)");
             Console.WriteLine($"Дата: {date}");
@@ -80,7 +132,7 @@ namespace Работа_с_текстом
                 Console.WriteLine("Введите логин: ");
                 string login = Console.ReadLine();
 
-                if(Regex.IsMatch(login, @"^[a-zA-Z]+$"))
+                if(Regex.IsMatch(login, loginRegex))
                 {
                     isValidLogin = true;
                     
@@ -98,13 +150,13 @@ namespace Работа_с_текстом
                 Console.WriteLine("Введите пароль: ");
                 string password = Console.ReadLine();
 
-                if(Regex.IsMatch(password, @"^[0-9!@#$%^&*()]+$"))
+                if(Regex.IsMatch(password, passwordRegex))
                 {
                     isValidPassword = true;
                 }
                 else
                 {
-                    Console.WriteLine("Должны быть только цифры и символы. Повторите ввод");
+                    Console.WriteLine("Должны быть только цифры и символы. Поz вторите ввод");
                 }
             }
 

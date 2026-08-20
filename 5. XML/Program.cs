@@ -20,14 +20,15 @@ namespace XML
                 return;
             }
 
-            XmlDocument xmlDoc = new XmlDocument();
+            var xmlDoc = new XmlDocument();
             xmlDoc.Load(path);
 
-            XmlNodeList contscts = xmlDoc.GetElementsByTagName("Contact");
+            var contacts = xmlDoc.GetElementsByTagName("Contact");
 
-            foreach(XmlNode contact in contscts)
+            foreach(var contact in contacts)
             {
-                string phone = contact.Attributes["TelephoneNumber"].Value;
+                var node = (XmlNode) contact;
+                var phone = node.Attributes["TelephoneNumber"].Value;
                 Console.WriteLine(phone);
             }
         }

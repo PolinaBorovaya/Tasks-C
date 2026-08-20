@@ -7,7 +7,6 @@ using System.Xml.Serialization;
 
 namespace Сериализация
 {
-    [Serializable]
     public class Animal
     {
         [XmlAttribute]

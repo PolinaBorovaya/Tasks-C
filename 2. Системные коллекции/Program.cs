@@ -14,7 +14,7 @@ namespace Системные_коллекции
         {
             /*Задание 1*/
             Console.WriteLine("ЗАДАНИЕ 1 \n");
-            Dictionary<int, double> dictionary = new Dictionary<int, double>();
+            var dictionary = new Dictionary<int, double>();
             dictionary.Add(101, 15000.50);
             dictionary.Add(102, 23400.75);
             dictionary.Add(103, 8900.00);
@@ -23,7 +23,7 @@ namespace Системные_коллекции
                 Console.WriteLine($"Счет {item.Key}: {item.Value}");
             Console.WriteLine();
 
-            SortedDictionary<int, double> sortedDictionary = new SortedDictionary<int, double>();
+            var sortedDictionary = new SortedDictionary<int, double>();
             sortedDictionary.Add(101, 15000.50);
             sortedDictionary.Add(102, 23400.75);
             sortedDictionary.Add(103, 8900.00);
@@ -32,7 +32,7 @@ namespace Системные_коллекции
                 Console.WriteLine($"Счет {item.Key}: {item.Value}");
             Console.WriteLine();
 
-            ConcurrentDictionary<int, double> сoncurrentDictionary = new ConcurrentDictionary<int, double>();
+            var сoncurrentDictionary = new ConcurrentDictionary<int, double>();
             сoncurrentDictionary.TryAdd(101, 15000.50);
             сoncurrentDictionary.TryAdd(102, 23400.75);
             сoncurrentDictionary.TryAdd(103, 8900.00);
@@ -43,7 +43,7 @@ namespace Системные_коллекции
 
             /*Задание 2*/
             Console.WriteLine("ЗАДАНИЕ 2");
-            OrderedDictionaryWrap<int, int> orderedDictionary = new OrderedDictionaryWrap<int, int>();
+            var orderedDictionary = new OrderedDictionaryWrap<int, int>();
 
             orderedDictionary.Add(123, 202020204);
             orderedDictionary.Add(432, 322342342);
@@ -66,7 +66,7 @@ namespace Системные_коллекции
             Console.WriteLine();
 
             Console.WriteLine($"Наличие ключа 123: {orderedDictionary.ContainsKey(123)}");
-            Console.WriteLine($"Наличие ключа 123: {orderedDictionary.ContainsKey(321)}");
+            Console.WriteLine($"Наличие ключа 321: {orderedDictionary.ContainsKey(321)}");
 
             Console.WriteLine();
 
@@ -128,7 +128,7 @@ namespace Системные_коллекции
 
             /*Задание 3*/
             Console.WriteLine("ЗАДАНИЕ 3");
-            SortedList<string, double> accounts = new SortedList<string, double>
+            var accounts = new SortedList<string, double>
             {
                 { "Иванов", 15000.50 },
                 { "Петров", 23400.75 },

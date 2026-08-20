@@ -11,8 +11,8 @@ namespace Рефлексия
             {
                 string assemblyPath = "TemperatureConverter.dll";
                 Assembly assembly = Assembly.LoadFrom(assemblyPath);
-                Console.WriteLine($"Сборка загружена: {assembly.GetName().Name}");
-                Console.WriteLine($"Версия: {assembly.GetName().Version}");
+                Console.WriteLine($"Сборка загружена: {assembly?.GetName().Name}");
+                Console.WriteLine($"Версия: {assembly?.GetName().Version}");
                 Console.WriteLine();
 
                 Type converterType = assembly.GetType("TemperatureConverter.Converter");
@@ -36,82 +36,26 @@ namespace Рефлексия
 
                 Console.WriteLine("\nЧЛЕНЫ ТИПА");
 
-                if (choice == "1" || choice == "3" || choice == "4")
+                switch (choice)
                 {
-                    Console.WriteLine("\n МЕТОДЫ:");
-                    MethodInfo[] methods = converterType.GetMethods(
-                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    );
-
-                    foreach (MethodInfo method in methods)
-                    {
-                        Console.WriteLine($"\n  Метод: {method.Name}");
-                        Console.WriteLine($"    Возвращает: {method.ReturnType.Name}");
-
-                        var parameters = method.GetParameters();
-                        if (parameters.Length > 0)
-                        {
-                            Console.Write("    Параметры: ");
-                            for (int i = 0; i < parameters.Length; i++)
-                            {
-                                Console.Write($"{parameters[i].ParameterType.Name} {parameters[i].Name}");
-                                if (i < parameters.Length - 1) Console.Write(", ");
-                            }
-                            Console.WriteLine();
-                        }
-
-                        ShowAttributes(method, "    ");
-                    }
-                }
-
-                if (choice == "2" || choice == "3" || choice == "4")
-                {
-                    Console.WriteLine("\n СВОЙСТВА:");
-                    PropertyInfo[] properties = converterType.GetProperties(
-                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    );
-
-                    if (properties.Length == 0)
-                    {
-                        Console.WriteLine("  (нет свойств)");
-                    }
-                    else
-                    {
-                        foreach (PropertyInfo prop in properties)
-                        {
-                            Console.WriteLine($"\n  Свойство: {prop.Name}");
-                            Console.WriteLine($"    Тип: {prop.PropertyType.Name}");
-
-                            string getSet = "";
-                            if (prop.GetMethod != null) getSet += "get; ";
-                            if (prop.SetMethod != null) getSet += "set;";
-                            Console.WriteLine($"    Доступ: {{ {getSet} }}");
-
-                            ShowAttributes(prop, "    ");
-                        }
-                    }
-                }
-
-                if (choice == "4")
-                {
-                    Console.WriteLine("\n ПОЛЯ:");
-                    FieldInfo[] fields = converterType.GetFields(
-                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
-                    );
-
-                    if (fields.Length == 0)
-                    {
-                        Console.WriteLine("  (нет полей)");
-                    }
-                    else
-                    {
-                        foreach (FieldInfo field in fields)
-                        {
-                            Console.WriteLine($"\n  Поле: {field.Name}");
-                            Console.WriteLine($"    Тип: {field.FieldType.Name}");
-                            ShowAttributes(field, "    ");
-                        }
-                    }
+                    case "1":
+                        Methods(converterType);
+                        break;
+                    case "2":
+                        Properties(converterType);
+                        break;
+                    case "3":
+                        Methods(converterType);
+                        Properties(converterType);
+                        break;
+                    case "4":
+                        Methods(converterType);
+                        Properties(converterType);
+                        Fields(converterType);
+                        break;
+                    default:
+                        Console.WriteLine("Введите существующий пункт меню");
+                        break;
                 }
 
                 Console.WriteLine("\n" + new string('=', 60));
@@ -155,6 +99,85 @@ namespace Рефлексия
             }
 
             Console.ReadKey();
+        }
+
+
+        static void Methods(Type type)
+        {
+            Console.WriteLine("\n МЕТОДЫ:");
+            MethodInfo[] methods = type.GetMethods(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
+            );
+
+            foreach (MethodInfo method in methods)
+            {
+                Console.WriteLine($"\n  Метод: {method.Name}");
+                Console.WriteLine($"    Возвращает: {method.ReturnType.Name}");
+
+                var parameters = method.GetParameters();
+                if (parameters.Length > 0)
+                {
+                    Console.Write("    Параметры: ");
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        Console.Write($"{parameters[i].ParameterType.Name} {parameters[i].Name}");
+                        if (i < parameters.Length - 1) Console.Write(", ");
+                    }
+                    Console.WriteLine();
+                }
+
+                ShowAttributes(method, "    ");
+            }
+        }
+
+        static void Properties(Type type)
+        {
+            Console.WriteLine("\n СВОЙСТВА:");
+            PropertyInfo[] properties = type.GetProperties(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
+            );
+
+            if (properties.Length == 0)
+            {
+                Console.WriteLine("  (нет свойств)");
+            }
+            else
+            {
+                foreach (PropertyInfo prop in properties)
+                {
+                    Console.WriteLine($"\n  Свойство: {prop.Name}");
+                    Console.WriteLine($"    Тип: {prop.PropertyType.Name}");
+
+                    string getSet = "";
+                    if (prop.GetMethod != null) getSet += "get; ";
+                    if (prop.SetMethod != null) getSet += "set;";
+                    Console.WriteLine($"    Доступ: {{ {getSet} }}");
+
+                    ShowAttributes(prop, "    ");
+                }
+            }
+        }
+
+        static void Fields(Type type)
+        {
+            Console.WriteLine("\n ПОЛЯ:");
+            FieldInfo[] fields = type.GetFields(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
+            );
+
+            if (fields.Length == 0)
+            {
+                Console.WriteLine("  (нет полей)");
+            }
+            else
+            {
+                foreach (FieldInfo field in fields)
+                {
+                    Console.WriteLine($"\n  Поле: {field.Name}");
+                    Console.WriteLine($"    Тип: {field.FieldType.Name}");
+                    ShowAttributes(field, "    ");
+                }
+            }
         }
 
         static void ShowAttributes(Type type)

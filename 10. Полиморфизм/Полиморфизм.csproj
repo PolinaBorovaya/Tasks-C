@@ -43,13 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="nvi\Animal.cs" />
-    <Compile Include="template_method\ExpressOrder.cs" />
-    <Compile Include="template_method\OrderProcessor.cs" />
+    <Compile Include="NVI\Animal.cs" />
+    <Compile Include="TemplateMethod\ExpressOrder.cs" />
+    <Compile Include="TemplateMethod\OrderProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="template_method\RegularOrder.cs" />
-    <Compile Include="template_method\WholesaleOrder.cs" />
+    <Compile Include="TemplateMethod\RegularOrder.cs" />
+    <Compile Include="TemplateMethod\WholesaleOrder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

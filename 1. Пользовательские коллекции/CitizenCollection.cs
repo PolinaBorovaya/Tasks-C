@@ -10,7 +10,7 @@ namespace ConsoleApp1
 {
     class CitizenCollection : IEnumerable
     {
-        private ArrayList citizens = new ArrayList();
+        private List<Citizen> citizens = new List<Citizen>();
 
         public int Add(Citizen citizen)
         {
